@@ -1,0 +1,69 @@
+{
+  "name": "watson",
+  "private": false,
+  "version": "0.1.0",
+  "description": "A tiny local dashboard for finding dev servers, ports, and background services left running.",
+  "license": "MIT",
+  "main": "electron/main.js",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k -n api,ui -c cyan,green \"node server/index.js --dev\" \"vite --host 127.0.0.1\"",
+    "dev:api": "node server/index.js --dev",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "mac:open": "npm run build && electron .",
+    "mac:pack": "npm run build && electron-builder --mac dir",
+    "mac:zip": "npm run build && electron-builder --mac zip",
+    "preview": "vite preview",
+    "start": "node server/index.js"
+  },
+  "build": {
+    "appId": "dev.cobibean.watson",
+    "productName": "watsOn",
+    "asar": true,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "server/**/*",
+      "prompts/**/*",
+      "build/icon.icns",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "hardenedRuntime": false,
+      "icon": "build/icon.icns",
+      "identity": null,
+      "target": [
+        "dir"
+      ]
+    }
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "lucide-react": "^1.17.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^24.12.3",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "concurrently": "^10.0.3",
+    "electron": "^42.3.3",
+    "electron-builder": "^26.8.1",
+    "eslint": "^10.3.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.6.0",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.59.2",
+    "vite": "^8.0.12"
+  }
+}
