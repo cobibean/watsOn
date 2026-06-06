@@ -1,41 +1,62 @@
 # watsOn
 
-**A tiny local dashboard for finding the dev servers, ports, and background services still running on your machine.**
+<p align="center">
+  <img src="public/favicon.svg" alt="watsOn app icon" width="96" height="96">
+</p>
 
-watsOn helps you answer the question every developer eventually asks:
+<p align="center">
+  <strong>Find the dev servers, ports, and background services still running on your machine.</strong>
+</p>
 
-> What did I leave running?
+<p align="center">
+  watsOn scans local listening ports, explains what each process probably is, shows the evidence behind that guess, and helps you decide what is safe to stop.
+</p>
 
-It scans local listening TCP ports, explains what each process probably is, shows the evidence behind that guess, and helps you decide whether it is safe to stop.
+<p align="center">
+  <a href="https://github.com/cobibean/watsOn/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/cobibean/watsOn?style=flat-square"></a>
+  <a href="https://github.com/cobibean/watsOn/blob/master/LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue?style=flat-square"></a>
+  <img alt="Local-first" src="https://img.shields.io/badge/local--first-no%20telemetry-0f766e?style=flat-square">
+  <img alt="Platforms" src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux%20%7C%20Windows-black?style=flat-square">
+</p>
 
-Everything runs locally. There is no account, daemon, telemetry, or cloud service. The optional AI assistant uses your own OpenRouter API key and the key never reaches the browser.
+![watsOn dashboard](docs/watson-dashboard.png)
+
+## Why watsOn exists
+
+Modern local development leaves things behind.
+
+A coding agent starts Vite on one port. You test a Next.js app on another. Prisma Studio, Storybook, Redis, ngrok, browser automation, or an old diagnostic command keeps running in the background. A few hours later, your machine has a tiny haunted network map and you have no idea what is safe to stop.
+
+watsOn is a local dashboard for that moment.
+
+It treats listening ports as evidence, not guilt. It shows the process, command, parent process, project path, scanner source, and stop guidance so you can make the call without spelunking through `lsof`, `netstat`, `ss`, `ps`, and PowerShell by hand.
 
 ## Highlights
 
-- Finds listening TCP ports on macOS, Linux, and Windows.
-- Identifies likely dev servers, databases, AI tools, tunnels, browser automation ports, and long-running local services.
-- Shows process name, PID, parent process, command, host, port, source scanner, and project path when available.
-- Explains every classification with concrete evidence, such as command text, known ports, parent process, or `lsof` details.
-- Separates services into `Likely yours`, `Normal`, and `Unsure` so the main view stays useful.
-- Provides cautious stop guidance: safe to stop, inspect first, or do not stop.
-- Stops non-system processes with `SIGTERM` or `taskkill`, with force-stop available from the inspector.
-- Detects stale `lsof` scans and other diagnostic commands left behind by tooling.
-- Lets you keep a local ignore list for services you expect to leave running.
-- Includes an optional OpenRouter assistant for asking questions about a selected listener.
-- Packages as an unsigned personal macOS app with Electron.
+- **Local listener discovery**: finds listening TCP ports on macOS, Linux, and Windows.
+- **Useful classification**: separates likely dev work from normal OS/app background services.
+- **Evidence-first UI**: explains every classification with command text, known ports, parent process, project path, or `lsof` evidence.
+- **Stop guidance**: marks processes as safe to stop, inspect first, or do not stop.
+- **Stale diagnostic detection**: spots `lsof` scans and other commands that should have exited.
+- **Local ignore list**: hide services you expect to keep running.
+- **Optional AI helper**: ask an OpenRouter model about a selected listener using your own API key.
+- **No telemetry**: no account, hosted backend, daemon, sync service, or analytics.
+- **Personal Mac app**: package an unsigned Electron app for your own machine.
 
-## Why
+## What it is not
 
-Modern local development can leave a lot behind:
+watsOn is intentionally cautious.
 
-- Vite and Next.js servers from old agent runs.
-- Databases started for a quick test.
-- Storybook, Prisma Studio, tunnels, or browser automation sessions.
-- Diagnostic commands that should have exited but did not.
+It is not a security scanner. It is not a process manager for production machines. It does not claim every unknown listener is suspicious. It does not phone home. It does not kill system processes for you. It is meant to make your local development environment easier to understand.
 
-watsOn is intentionally conservative. It treats a listening port as evidence, not a verdict. It will show why something looks relevant, but it avoids claiming a process is forgotten or safe to kill unless the evidence is strong.
+## Quick Start
 
-## Install
+Requirements:
+
+- Node.js
+- npm
+
+Clone and install:
 
 ```bash
 git clone https://github.com/cobibean/watsOn.git
@@ -43,9 +64,7 @@ cd watsOn
 npm install
 ```
 
-## Run Locally
-
-Start the local API and Vite UI:
+Run the local API and Vite UI:
 
 ```bash
 npm run dev
@@ -70,25 +89,24 @@ Open:
 http://127.0.0.1:4141
 ```
 
-## Optional AI Assistant
+## Optional OpenRouter Assistant
 
-watsOn can ask any OpenRouter chat model about a selected listener.
+watsOn can ask an OpenRouter chat model about a selected listener.
 
-1. Create an OpenRouter API key.
-2. Copy the example env file:
+Copy the example env file:
 
-   ```bash
-   cp .env.example .env.local
-   ```
+```bash
+cp .env.example .env.local
+```
 
-3. Set your key:
+Set your key:
 
-   ```bash
-   OPENROUTER_API_KEY=your_key_here
-   OPENROUTER_MODEL=openrouter/auto
-   ```
+```bash
+OPENROUTER_API_KEY=your_key_here
+OPENROUTER_MODEL=openrouter/auto
+```
 
-4. Restart `npm run dev`.
+Restart `npm run dev`.
 
 The browser never receives the key. The local server reads it from `.env.local` or `.env`, then sends selected service evidence to OpenRouter only when you ask the assistant a question.
 
@@ -133,22 +151,7 @@ Each listener is enriched with process details and classified into one of three 
 | `Normal` | OS services, app helpers, browser helpers, updaters, VPN agents, and vendor background services. These are hidden from the main list by default. |
 | `Unsure` | Local listeners with too little evidence to judge. |
 
-## Privacy And Safety
-
-- watsOn binds to localhost.
-- There is no telemetry.
-- There is no hosted backend.
-- There is no account system.
-- API keys belong in `.env.local` or `.env`, both of which are ignored by git.
-- The optional OpenRouter assistant is only called when you ask it a question.
-- Stop actions are blocked for protected/system processes and for watsOn's own API process.
-
 ## Development
-
-```bash
-npm install
-npm run dev
-```
 
 Useful checks:
 
@@ -168,7 +171,7 @@ The app is built with:
 
 ## Contributing
 
-Contributions are welcome.
+Issues and pull requests are welcome.
 
 Good first areas:
 
@@ -179,6 +182,24 @@ Good first areas:
 - Improve accessibility and keyboard navigation.
 
 Please keep changes conservative around process stopping. The project should prefer useful caution over false confidence.
+
+## Security and privacy
+
+- watsOn binds to localhost.
+- There is no telemetry.
+- There is no hosted backend.
+- There is no account system.
+- API keys belong in `.env.local` or `.env`, both of which are ignored by git.
+- The optional OpenRouter assistant is only called when you ask it a question.
+- Stop actions are blocked for protected/system processes and for watsOn's own API process.
+
+If you find a security issue, please open a private report through GitHub Security Advisories if available, or contact the maintainer directly.
+
+## Maintainer
+
+Built by [@cobi_bean](https://twitter.com/cobi_bean).
+
+If watsOn is useful or interesting, a star helps more people find it.
 
 ## License
 
